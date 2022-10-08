@@ -2,8 +2,23 @@
 
 ' Null module to provide a fake startup point
 
+Const VENDOR As String = "torizon"
+Const NAME As String = "gambas-iot"
+Const VERSION As String = "0.0"
+
 Public Sub Main()
 
-    Error.Raise("gambas-iot library")
+    Print "Installing lib ..."
+
+    If Exist("/home/castello/.local/share/gambas3/lib/" & VENDOR & "/" & NAME & ":" & VERSION & ".gambas") Then
+        Kill "/home/castello/.local/share/gambas3/lib/" & VENDOR & "/" & NAME & ":" & VERSION & ".gambas"
+    Endif
+
+    Copy Application.Path &/ Application.Name & ".gambas" To "/home/castello/.local/share/gambas3/lib/" & VENDOR & "/" & NAME & ":" & VERSION & ".gambas"
+
+    Print "Lib installed"
+
+Catch
+    Print "Error trying to install library"
 
 End

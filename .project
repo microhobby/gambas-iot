@@ -1,10 +1,10 @@
 # Gambas Project File 3.0
 Title=gambas-iot
 Startup=Main
-Version=0.0.1
+Version=0.0.2
 Description="Gambas library to access embedded devices peripherals"
 Authors="Matheus Castello"
-TabSize=2
+TabSize=4
 Language=en_US
 Type=Library
 ForceBytecodeVersion=3.15

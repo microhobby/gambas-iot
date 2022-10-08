@@ -1,7 +1,9 @@
 ' Gambas module file
 
+' Null module to provide a fake startup point
+
 Public Sub Main()
 
-  Print "Hello world"
+    Error.Raise("gambas-iot library")
 
 End

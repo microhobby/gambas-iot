@@ -1,0 +1,42 @@
+' Gambas class file
+
+Library "libgpiod:2"
+Extern gpiod_version_string() As String In "libgpiod:2"
+Extern gpiod_chip_open_by_number(chip As Integer) As Pointer In "libgpiod:2"
+
+Static Private sChips As Collection = New Collection
+
+Static Public Sub OpenChip(chipId As Integer) As Pointer
+
+    Print "libgpiod version: " & gpiod_version_string()
+
+    If sChips.Exist("" & chipId) Then
+        Return sChips[chipId]
+    Else
+        Dim chip As Pointer
+        Dim ret As Integer
+
+        chip = gpiod_chip_open_by_number(chipId)
+        ret = System.Error
+
+        If IsNull(chip) Then
+            Error.Raise("Error trying to open /dev/gpiochip" & chipId & " :: " & Errno.UnixErrorCodeToStr(ret))
+        Endif
+
+        ' get /dev/gpiochip{chipId}
+        sChips.Add(chip, "" & chipId)
+
+        Return sChips["" & chipId]
+    Endif
+
+End
+
+Static Public Sub getChip(chipId As Integer) As Pointer
+
+    If sChips.Exist("" & chipId) Then
+        Return sChips["" & chipId]
+    Else
+        Error.Raise("/dev/gpiochip" & chipId & " not opened")
+    Endif
+
+End

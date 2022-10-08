@@ -1,0 +1,45 @@
+' Gambas class file
+
+Const EPERM As Integer = 1     '  Operation Not permitted
+Const ENOENT As Integer = 2    '  No such file Or directory
+Const ESRCH As Integer = 3     '  No such process
+Const EINTR As Integer = 4     '  Interrupted system call
+Const EIO As Integer = 5       '  I / O Error
+Const ENXIO As Integer = 6     '  No such device Or address
+Const E2BIG As Integer = 7     '  Argument list too long
+Const ENOEXEC As Integer = 8   '  Exec format Error
+Const EBADF As Integer = 9     '  Bad file number
+Const ECHILD As Integer = 10   '  No child processes
+Const EAGAIN As Integer = 11   '  Try again
+Const ENOMEM As Integer = 12   '  Out Of Memory
+Const EACCES As Integer = 13   '  Permission denied
+Const EFAULT As Integer = 14   '  Bad address
+Const ENOTBLK As Integer = 15  '  Block device required
+Const EBUSY As Integer = 16    '  Device Or resource busy
+Const EEXIST As Integer = 17   '  File exists
+Const EXDEV As Integer = 18    '  Cross - device Link
+Const ENODEV As Integer = 19   '  No such device
+Const ENOTDIR As Integer = 20  '  Not a directory
+Const EISDIR As Integer = 21   '  Is A directory
+Const EINVAL As Integer = 22   '  Invalid argument
+Const ENFILE As Integer = 23   '  File table overflow
+Const EMFILE As Integer = 24   '  Too many Open files
+Const ENOTTY As Integer = 25   '  Not a typewriter
+Const ETXTBSY As Integer = 26  '  Text file busy
+Const EFBIG As Integer = 27    '  File too large
+Const ENOSPC As Integer = 28   '  No space left On device
+Const ESPIPE As Integer = 29   '  Illegal Seek
+Const EROFS As Integer = 30    '  Read -only file system
+Const EMLINK As Integer = 31   '  Too many links
+Const EPIPE As Integer = 32    '  Broken Pipe
+Const EDOM As Integer = 33     '  Math argument out Of domain Of func
+Const ERANGE As Integer = 34   '  Math result Not representable
+
+Library "libc:6"
+Extern strerror(__errnum As Integer) As String In "libc:6"
+
+Static Public Sub UnixErrorCodeToStr(errno As Integer) As String
+
+    Return strerror(errno)
+
+End

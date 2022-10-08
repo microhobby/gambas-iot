@@ -1,0 +1,5 @@
+' Gambas class file
+
+Export
+
+Public Enum DIR_INPUT = 0, DIR_OUTPUT

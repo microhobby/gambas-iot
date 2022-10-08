@@ -1,0 +1,167 @@
+' Gambas class file
+
+Export
+
+Public Enum GPIOD_LINE_ACTIVE_STATE_HIGH = 1, GPIOD_LINE_ACTIVE_STATE_LOW = 2
+
+Library "libgpiod:2"
+Extern gpiod_line_request_output(gpiod_line As Pointer, consumer As String, lineState As Integer) As Integer In "libgpiod:2"
+Extern gpiod_line_request_input(gpiod_line As Pointer, consumer As String) As Integer In "libgpiod:2"
+Extern gpiod_line_set_value(outputLine As Pointer, value As Integer) As Integer In "libgpiod:2"
+Extern gpiod_line_get_value(outputLine As Pointer) As Integer In "libgpiod:2"
+Extern gpiod_chip_get_line(chip As Pointer, offset As Integer) As Pointer In "libgpiod:2"
+
+Private _chipId As Integer
+Private _lineId As Integer
+Private _chip As Pointer
+Private _line As Pointer
+Private _direction As Integer
+Private _state As Integer
+Private _oldState As Integer
+Private _pollingTimer As Timer
+
+Event PinValueChanged(value As Integer)
+
+Public Sub _new(chipId As Integer, lineId As Integer)
+
+    Dim ret As Integer
+
+    _chipId = chipId
+    _lineId = lineId
+
+    ' get /dev/gpiochip{chipId}
+    _chip = Gpiod.OpenChip(chipId)
+    _line = gpiod_chip_get_line(_chip, lineId)
+    ret = System.Error
+
+    If IsNull(_line) Then
+        Error.Raise("Error trying to get /dev/gpiochip" & chipId & " offset " & lineId & " :: " & Errno.UnixErrorCodeToStr(ret))
+    Endif
+
+    _state = PinValue.HIGH
+
+    _pollingTimer = New Timer As "MonitorTimer"
+    _pollingTimer.Delay = 10
+
+End
+
+Public Sub MonitorTimer_Timer()
+
+    If Me.Read() = PinValue.HIGH And _oldState = PinValue.LOW Then
+        Raise PinValueChanged(PinValue.HIGH)
+    Endif
+
+End
+
+Public Sub AsOutput()
+
+    Dim ret As Integer
+    Dim _ret As Integer
+
+    ret = gpiod_line_request_output(_line, "gambas", GPIOD_LINE_ACTIVE_STATE_LOW)
+    _ret = System.Error
+
+    If ret = -1 Then
+        Error.Raise("Errot setting the /dev/gpiochip" & _chipId & " offset " & _lineId & " as output" & " :: " & Errno.UnixErrorCodeToStr(_ret))
+    Endif
+
+    _direction = PinDirection.DIR_OUTPUT
+
+End
+
+Public Sub AsInput()
+
+    Dim ret As Integer
+    Dim _ret As Integer
+
+    ret = gpiod_line_request_input(_line, "gambas")
+    _ret = System.Error
+
+    If ret = -1 Then
+        Error.Raise("Errot setting the /dev/gpiochip" & _chipId & " offset " & _lineId & " as input" & " :: " & Errno.UnixErrorCodeToStr(_ret))
+    Endif
+
+    _direction = PinDirection.DIR_INPUT
+
+End
+
+Public Sub Write(value As Integer)
+
+    Dim ret As Integer
+    Dim _ret As Integer
+
+    If _direction = PinDirection.DIR_OUTPUT Then
+        ret = gpiod_line_set_value(_line, value)
+        _ret = System.Error
+
+        If ret = -1 Then
+            Error.Raise("Errot setting the /dev/gpiochip" & _chipId & " offset " & _lineId & " to value " & value & " :: " & Errno.UnixErrorCodeToStr(_ret))
+        Endif
+    Else
+        Error.Raise("Trying to set value in a pin set as DIR_OUTPUT")
+    Endif
+
+End
+
+Public Sub Read() As Integer
+
+    Dim ret As Integer
+    Dim _ret As Integer
+
+    If _direction = PinDirection.DIR_INPUT Then
+        _oldState = _state
+        ret = gpiod_line_get_value(_line)
+        _ret = System.Error
+
+        If ret = -1 Then
+            Error.Raise("Errot getting the /dev/gpiochip" & _chipId & " offset " & _lineId & " value" & " :: " & Errno.UnixErrorCodeToStr(_ret))
+        Endif
+
+        _state = ret
+    Else
+        ret = _state
+    Endif
+
+    Return ret
+
+End
+
+Public Sub StartMonitorForPinChangedEvent()
+
+    If Not _pollingTimer.Enabled Then
+        _pollingTimer.Start()
+    Endif
+
+End
+
+Public Sub StopMonitorForPinChangedEvent()
+
+    If _pollingTimer.Enabled Then
+        _pollingTimer.Stop()
+    Endif
+
+End
+
+Public Sub High()
+
+    Write(PinValue.HIGH)
+    _state = PinValue.HIGH
+
+End
+
+Public Sub Low()
+
+    Write(PinValue.LOW)
+    _state = PinValue.LOW
+
+End
+
+Public Sub Toggle()
+
+    If _state = PinValue.HIGH Then
+        Me.Low()
+    Else
+        Me.High()
+    Endif
+
+End

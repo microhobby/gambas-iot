@@ -14,6 +14,18 @@ Gambas3 can be used to build applications for [IoT](https://en.wikipedia.org/wik
 
 
 
+## Supported Peripherals
+
+- GPIOs (trough Linux libgpiod)
+
+- <mark>**TODO**</mark>: Add support to `I2C`
+
+- <mark>**TODO**</mark>: Add support to `SPI`
+
+- **<mark>TODO</mark>**: Add support to `iio`
+
+
+
 # Software Requirements
 
 - Gambas3 >= v3.15

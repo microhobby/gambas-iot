@@ -42,7 +42,7 @@ This will install the library on `/home/$USER/.local/share/gambas/lib/torizon/`
 
 The "Hello World" of the embedded systems is blink a LED:
 
-```visual-basic
+```vbnet
 ' Gambas module file
 
 Public blinkTimer As Timer = New Timer As "Blink"

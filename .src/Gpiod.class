@@ -1,14 +1,12 @@
 ' Gambas class file
 
 Library "libgpiod:2"
-Extern gpiod_version_string() As String In "libgpiod:2"
+' Extern gpiod_version_string() As String In "libgpiod:2"
 Extern gpiod_chip_open_by_number(chip As Integer) As Pointer In "libgpiod:2"
 
 Static Private sChips As Collection = New Collection
 
 Static Public Sub OpenChip(chipId As Integer) As Pointer
-
-    Print "libgpiod version: " & gpiod_version_string()
 
     If sChips.Exist("" & chipId) Then
         Return sChips[chipId]

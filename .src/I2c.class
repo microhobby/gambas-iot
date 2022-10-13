@@ -1,0 +1,27 @@
+' Gambas class file
+
+Export
+
+Private _fd As File
+Private _devId As Integer
+Private _devAddr As Integer
+
+Public Sub _new(devId As Integer, devAddr As Integer)
+
+    _devId = devId
+    _devAddr = devAddr
+    _fd = Libi2c.OpenCharDev(devId, devAddr)
+
+End
+
+Public Sub ReadWord(cmd As Integer) As Integer
+
+    Return Libi2c.ReadWord(_fd, cmd)
+
+End
+
+Public Sub WriteWord(cmd As Integer, value As Integer)
+
+    Libi2c.WriteWord(_fd, cmd, value)
+
+End

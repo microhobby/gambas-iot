@@ -1,0 +1,66 @@
+' Gambas class file
+
+Library "libc:6"
+Library "libi2c:0"
+
+Extern ioctl(fd As Integer, request As Long, addr As Integer) As Integer In "libc:6"
+Extern i2c_smbus_read_word_data(fd As Integer, command As Integer) As Integer In "libi2c:0"
+Extern i2c_smbus_write_word_data(fd As Integer, command As Integer, value As Integer) As Integer In "libi2c:0"
+
+Const I2C_RETRIES As Integer = &h0701&
+Const I2C_TIMEOUT As Integer = &h0702&
+Const I2C_SLAVE As Integer = &h0703&
+Const I2C_SLAVE_FORCE As Integer = &h0706&
+Const I2C_TENBIT As Integer = &h0704&
+Const I2C_FUNCS As Integer = &h0705&
+Const I2C_RDWR As Integer = &h0707&
+Const I2C_PEC As Integer = &h0708&
+Const I2C_SMBUS As Integer = &h0720&
+
+Static Public Sub OpenCharDev(i2cId As Integer, devAddress As Integer) As File
+
+    Dim hFile As File
+    Dim ret As Integer
+    Dim err As Integer
+
+    ' open the file handle
+    hFile = Open ("/dev/i2c-" & i2cId) For Read Write
+
+    ' asign the device to the handle
+    ret = ioctl(hFile.Handle, I2C_SLAVE, devAddress)
+    err = System.Error
+    If ret < 0 Then
+        Error.Raise("Error trying to controll /dev/i2c-" & i2cId & " :: " & Errno.UnixErrorCodeToStr(err))
+    Endif
+
+    Return hFile
+
+End
+
+Static Public Sub ReadWord(i2cFd As File, command As Integer) As Integer
+
+    Dim ret As Integer
+    Dim err As Integer
+
+    ret = i2c_smbus_read_word_data(i2cFd.Handle, command)
+    err = System.Error
+    If ret < 0 Then
+        Error.Raise("Error trying to read word from " & i2cFd.BaseName & " :: " & Errno.UnixErrorCodeToStr(err))
+    Endif
+
+    Return ret
+
+End
+
+Static Public Sub WriteWord(i2cFd As File, command As Integer, data As Integer)
+
+    Dim ret As Integer
+    Dim err As Integer
+
+    ret = i2c_smbus_write_word_data(i2cFd.Handle, command, data)
+    err = System.Error
+    If ret < 0 Then
+        Error.Raise("Error trying to write word in " & i2cFd.BaseName & " :: " & Errno.UnixErrorCodeToStr(err))
+    Endif
+
+End
